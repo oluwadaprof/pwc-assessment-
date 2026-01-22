@@ -1,19 +1,15 @@
-
-
-import type { Product } from "../../types/product";
-import { EmptyState } from "../../layout/components/empty-state";
-import { ProductCard } from "./product-card";
-import { ProductListItem } from "./product-list";
-import { Skeleton } from "@/src/primitives/ui/skeleton";
-
+import { Product } from "../../types/product"
+import { ProductCard } from "./product-card"
+import { Loader2 } from "lucide-react"
 
 type ProductGridProps = {
-    products: Product[];
-    selectedProductId: string | null;
-    onSelectProduct: (id: string) => void;
-    isLoading: boolean;
-    view: "grid" | "list";
-    searchQuery: string;
+    products: Product[]
+    selectedProductId: string | null
+    onSelectProduct: (id: string) => void
+    isLoading: boolean
+    view: "grid" | "list"
+    searchQuery: string
+    categories: string[]
 }
 
 export const ProductGrid = ({
@@ -23,74 +19,43 @@ export const ProductGrid = ({
     isLoading,
     view,
     searchQuery,
+    categories,
 }: ProductGridProps) => {
     if (isLoading) {
-        return view === "grid" ? (
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="rounded-lg border border-border bg-card p-4">
-                        <div className="flex items-start justify-between mb-2">
-                            <Skeleton className="h-5 w-2/3" />
-                            <Skeleton className="h-5 w-16" />
-                        </div>
-                        <Skeleton className="h-4 w-full mb-4" />
-                        <div className="flex items-center justify-between">
-                            <Skeleton className="h-6 w-20" />
-                            <Skeleton className="h-4 w-16" />
-                        </div>
-                    </div>
-                ))}
+        return (
+            <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-        ) : (
-            <div className="flex flex-col gap-3">
-                {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="rounded-lg border border-border bg-card p-4 flex items-center justify-between">
-                        <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                                <Skeleton className="h-5 w-40" />
-                                <Skeleton className="h-5 w-16" />
-                            </div>
-                            <Skeleton className="h-4 w-64" />
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <Skeleton className="h-4 w-16" />
-                            <Skeleton className="h-6 w-20" />
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
+        )
     }
 
     if (products.length === 0) {
-        return <EmptyState searchQuery={searchQuery} />;
-    }
-
-    if (view === "list") {
         return (
-            <div className="flex flex-col gap-3">
-                {products.map((product) => (
-                    <ProductListItem
-                        key={product.id}
-                        product={product}
-                        isSelected={selectedProductId === product.id}
-                        onSelect={() => onSelectProduct(product.id)}
-                    />
-                ))}
+            <div className="text-center py-12">
+                <p className="text-muted-foreground">
+                    {searchQuery ? "No products found matching your search." : "No products available."}
+                </p>
             </div>
-        );
+        )
     }
 
     return (
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+        <div
+            className={
+                view === "grid"
+                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                    : "flex flex-col gap-3"
+            }
+        >
             {products.map((product) => (
                 <ProductCard
                     key={product.id}
                     product={product}
                     isSelected={selectedProductId === product.id}
                     onSelect={() => onSelectProduct(product.id)}
+                    categories={categories}
                 />
             ))}
         </div>
-    );
+    )
 }

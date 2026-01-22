@@ -12,15 +12,16 @@ import {
   DropdownMenuTrigger
 } from '@/src/primitives/ui/dropdown-menu'
 
-//define new theme colors here so it shows the color in the dropdown
-//go to the layout to add the theme name to the themes prop in the ThemeProvider
-//go to global.css to add the cssVariable colors in the @layer styles to render the colors accross your application
 const themeColors: Record<string, string> = {
   orange: 'bg-orange-800',
   light: 'bg-white',
   dark: 'bg-gray-800',
   red: 'bg-red-600',
   rose: 'bg-rose-600'
+}
+
+const toSentenceCase = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
 }
 
 export const ThemeSwitcher = () => {
@@ -43,7 +44,7 @@ export const ThemeSwitcher = () => {
             >
               <div className={`h-2 w-2 rounded-full ${themeColors[theme]}`} />
             </div>
-            {theme}
+            {toSentenceCase(theme)}
             {theme === currentTheme && (
               <span className='ml-2 text-green-500'>
                 <svg

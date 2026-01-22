@@ -1,54 +1,60 @@
 'use client'
 
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-
-
-
-
-import { fetchProducts } from "../lib/api/product";
-import { Card, CardContent, CardHeader, CardTitle } from "../primitives/ui/card";
-import { SearchBar } from "../modules/layout/components/search-bar";
-import { Header } from "../modules/layout/components/header";
-import { ProductGrid } from "../modules/products/components/product-grid";
-
-import { CartSummary } from "../modules/cart/components/cart-summary";
-import { ViewToggle } from "../modules/layout/components/view-toggle";
-import { AddToCartForm } from "../modules/cart/components/add-to-cart";
-import { CategoryFilter } from "../modules/cart/components/cartegory-filter";
+import { useMemo, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { fetchProducts } from "../lib/api/product"
+import { Header } from "../modules/layout/components/header"
+import { ProductGrid } from "../modules/products/components/product-grid"
+import { CategoryFilter } from "../modules/cart/components/cartegory-filter"
+import { useCustomProductsStore } from "../modules/store/use-custom-product-store"
 
 
 const Index = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [view, setView] = useState<"grid" | "list">("grid");
-  const [cartOpen, setCartOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null)
+  const [view, setView] = useState<"grid" | "list">("grid")
+  const [cartOpen, setCartOpen] = useState(false)
 
-  const { data: products = [], isLoading } = useQuery({
+  const { data: mockProducts = [], isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: fetchProducts,
-  });
+  })
+
+  const { customProducts } = useCustomProductsStore()
+
+  const allProducts = useMemo(() => {
+    return [...mockProducts, ...customProducts]
+  }, [mockProducts, customProducts])
 
   const categories = useMemo(() => {
-    const cats = new Set(products.map((p) => p.category));
-    return Array.from(cats).sort();
-  }, [products]);
+    const cats = new Set(allProducts.map((p) => p.category))
+    return Array.from(cats).sort()
+  }, [allProducts])
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    const filtered = allProducts.filter((product) => {
       const matchesSearch =
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = !selectedCategory || product.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    });
-  }, [products, searchQuery, selectedCategory]);
+        product.description.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesCategory = !selectedCategory || product.category === selectedCategory
+      return matchesSearch && matchesCategory
+    })
+
+    return filtered.sort((a, b) => {
+      const aIsCustom = a.id.startsWith("custom-")
+      const bIsCustom = b.id.startsWith("custom-")
+
+      if (aIsCustom && !bIsCustom) return -1
+      if (!aIsCustom && bIsCustom) return 1
+      return 0
+    })
+  }, [allProducts, searchQuery, selectedCategory])
 
   const handleProductSelect = (id: string) => {
-    setSelectedProductId(id);
-    setCartOpen(true);
-  };
+    setSelectedProductId(id)
+    setCartOpen(true)
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -58,11 +64,12 @@ const Index = () => {
         resultCount={filteredProducts.length}
         view={view}
         onViewChange={setView}
-        products={products}
+        products={allProducts}
         selectedProductId={selectedProductId}
         onProductSelect={setSelectedProductId}
         cartOpen={cartOpen}
         onCartOpenChange={setCartOpen}
+        categories={categories}
       />
 
       <main className="container mx-auto px-4 py-6">
@@ -73,9 +80,6 @@ const Index = () => {
               selectedCategory={selectedCategory}
               onCategoryChange={setSelectedCategory}
             />
-            <div className="md:hidden">
-              <ViewToggle view={view} onViewChange={setView} />
-            </div>
           </div>
 
           <ProductGrid
@@ -85,12 +89,12 @@ const Index = () => {
             isLoading={isLoading}
             view={view}
             searchQuery={searchQuery}
+            categories={categories}
           />
         </div>
       </main>
     </div>
-  );
+  )
 }
 
-
-export default Index;
+export default Index

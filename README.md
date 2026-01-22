@@ -9,13 +9,24 @@ zero-rated, and exempt categories.
 
 ### Core Functionality
 
-- ✅ Product catalog with various VAT rates (20%, 10%, 5%, 0%)
+- ✅ Product catalog with various VAT rates (7.5%, 0%)
 - ✅ Real-time VAT calculations
 - ✅ Shopping cart-style calculation interface
-- ✅ Multiple product categories (Services, Food & Beverages, Medical,
-  Education, etc.)
+- ✅ Multiple product categories (Services, Financial, Zero-Rated, Exempt, etc.)
 - ✅ Dynamic quantity adjustments
 - ✅ Comprehensive calculation summaries
+- ✅ **Custom service creation and management**
+- ✅ **Persistent custom services with localStorage**
+
+### Custom Services Management
+
+- ✅ Create custom VAT services with custom rates
+- ✅ Edit existing custom services
+- ✅ Delete custom services with confirmation
+- ✅ Custom services displayed at the top of the list
+- ✅ Visual indicators for user-created services
+- ✅ Form validation for all custom service fields
+- ✅ Local storage persistence across sessions
 
 ### User Interface
 
@@ -23,9 +34,10 @@ zero-rated, and exempt categories.
 - ✅ Grid and List view toggle for products
 - ✅ Search and filter functionality
 - ✅ Category-based filtering
-- ✅ Dark/Light theme support with multiple color schemes
+- ✅ Dark/Light theme support with multiple color schemes (Orange, Red, Rose)
 - ✅ Slide-out cart sheet for calculations
 - ✅ Toast notifications for user feedback
+- ✅ Intuitive dialog forms with real-time validation
 
 ### Calculations
 
@@ -41,7 +53,7 @@ zero-rated, and exempt categories.
 - **Language:** TypeScript
 - **UI Components:** Radix UI
 - **Styling:** Tailwind CSS
-- **State Management:** Zustand
+- **State Management:** Zustand (with persist middleware)
 - **Data Fetching:** TanStack Query (React Query)
 - **Form Handling:** React Hook Form + Zod validation
 - **Icons:** Lucide React
@@ -52,13 +64,11 @@ zero-rated, and exempt categories.
 The application supports the following VAT categories aligned with Nigerian tax
 law:
 
-| Category      | VAT Rate | Examples                                |
-| ------------- | -------- | --------------------------------------- |
-| Standard Rate | 20%      | Most services, consulting               |
-| Reduced Rate  | 10%      | Food & beverages, some services         |
-| Lower Rate    | 5%       | Basic necessities                       |
-| Zero-Rated    | 0%       | Medical supplies, educational materials |
-| Exempt        | 0%       | Certain exempt services                 |
+| Category      | VAT Rate | Examples                                                  |
+| ------------- | -------- | --------------------------------------------------------- |
+| Standard Rate | 7.5%     | Most services, consulting, banking                        |
+| Zero-Rated    | 0%       | Exports, diplomatic services, EPZ goods                   |
+| Exempt        | 0%       | Medical supplies, educational materials, basic food items |
 
 ## Folder Structure
 
@@ -75,12 +85,16 @@ src/
 │   │   │   ├── cart-sheet.tsx
 │   │   │   ├── cart-summary.tsx
 │   │   │   ├── add-to-cart.tsx
+│   │   │   ├── add-custom-product-dialog.tsx  # NEW
 │   │   │   └── category-filter.tsx
-│   │   └── store/            # Zustand cart store
+│   │   └── store/            # Zustand stores
+│   │       ├── cart-store.ts
+│   │       └── custom-products-store.ts       # NEW
 │   ├── products/
 │   │   ├── components/       # Product display components
 │   │   │   ├── product-grid.tsx
-│   │   │   └── product-card.tsx
+│   │   │   ├── product-card.tsx
+│   │   │   └── product-list-item.tsx
 │   │   └── types.ts          # Product interfaces
 │   ├── layout/
 │   │   └── components/       # Layout components
@@ -89,12 +103,18 @@ src/
 │   │       └── view-toggle.tsx
 │   └── utils/
 │       ├── vat-calculator.ts # VAT calculation logic
-│       └── validation-schema.ts # Form validation
+│       ├── validation-schema.ts # Form validation
+│       └── custom-product-validation.ts # NEW
 ├── lib/
 │   └── api/
 │       └── product.ts        # Product data API
 └── primitives/
     ├── ui/                   # Radix UI components
+    │   ├── form.tsx          # NEW
+    │   ├── select.tsx        # NEW
+    │   ├── textarea.tsx      # NEW
+    │   ├── label.tsx         # NEW
+    │   └── alert-dialog.tsx  # NEW
     └── theme-provider.tsx    # Theme context
 ```
 
@@ -174,7 +194,35 @@ pnpm start
 
 ## Key Features Implementation
 
-### 1. VAT Calculation Engine
+### 1. Custom Services Management
+
+Users can create, edit, and delete custom VAT services:
+
+```typescript
+// Add custom service
+addCustomProduct({ name, category, basePrice, vatRate, description });
+
+// Update custom service
+updateCustomProduct(id, { name, category, basePrice, vatRate, description });
+
+// Delete custom service
+deleteCustomProduct(id);
+```
+
+**Features:**
+
+- Form validation with Zod schema
+- Required fields: name (3-100 chars), category, price (> 0), VAT rate (0-100%),
+  description (10-500 chars)
+- Real-time validation feedback
+- Submit button disabled until all fields are valid
+- Custom services persisted to localStorage
+- Custom services automatically sorted to top of product list
+- Visual "Custom" badge with sparkle icon
+- Edit/Delete actions via dropdown menu
+- Confirmation dialog for deletions
+
+### 2. VAT Calculation Engine
 
 The calculator uses precise decimal arithmetic to ensure accurate tax
 calculations:
@@ -193,21 +241,25 @@ calculateItemTotal(basePrice, quantity, vatRate);
 calculateCartTotals(items);
 ```
 
-### 2. State Management
+### 3. State Management
 
-- **Zustand Store:** Manages cart state with persistence
+- **Zustand Store (Cart):** Manages cart state with items and quantities
+- **Zustand Store (Custom Products):** Manages custom services with localStorage
+  persistence
 - **React Query:** Handles product data fetching and caching
 - **Form State:** React Hook Form with Zod validation
 
-### 3. Responsive Design
+### 4. Responsive Design
 
 - Mobile-first approach
 - Collapsible header on mobile
 - Sheet-based cart interface
 - Touch-friendly controls
 - Adaptive grid/list layouts
+- Responsive dialog forms
+- Compact button text on mobile screens
 
-### 4. Theme Support
+### 5. Theme Support
 
 Multiple theme options:
 
@@ -228,6 +280,8 @@ Themes are powered by `next-themes` with CSS variables for easy customization.
 
 ## Usage Example
 
+### Using Pre-defined Services
+
 1. Browse the product catalog
 2. Use search or category filters to find products
 3. Click "Calculate" or select a product
@@ -236,12 +290,32 @@ Themes are powered by `next-themes` with CSS variables for easy customization.
 6. View real-time VAT calculations
 7. See breakdown of subtotal, VAT, and total
 
+### Creating Custom Services
+
+1. Click "Add Custom Service" button in the header
+2. Fill in the service details:
+   - Service name (e.g., "Web Development")
+   - Category (select from existing categories)
+   - Base price in Naira
+   - VAT rate percentage (0-100%)
+   - Service description
+3. Click "Create Service" (enabled only when all fields are valid)
+4. Your custom service appears at the top of the product list
+5. Custom services are marked with a purple "Custom" badge
+
+### Managing Custom Services
+
+1. Locate your custom service (marked with "Custom" badge)
+2. Click the three-dot menu icon
+3. Choose "Edit Service" to modify details
+4. Choose "Delete Service" and confirm to remove
+
 ## Nigerian VAT Compliance
 
 This calculator follows the Nigerian Federal Inland Revenue Service (FIRS) VAT
 guidelines:
 
-- Standard VAT rate: 7.5% (configurable to 20% in demo)
+- Standard VAT rate: 7.5%
 - Proper categorization of goods and services
 - Zero-rating for exports and exempt items
 - Clear display of VAT amounts
@@ -253,6 +327,19 @@ guidelines:
 - Optimized re-renders with Zustand selectors
 - Lazy loading of components
 - Efficient form validation
+- localStorage persistence for custom services
+
+## Data Persistence
+
+Custom services are automatically saved to browser localStorage and will persist
+across:
+
+- Page refreshes
+- Browser restarts
+- Session changes
+
+Data is stored under the key `custom-vat-products` and includes all custom
+service details.
 
 ## Future Enhancements
 
@@ -260,10 +347,12 @@ guidelines:
 - [ ] Save calculation history
 - [ ] Multi-currency support
 - [ ] Bulk product import
-- [ ] Tax rate customization
+- [ ] Bulk custom service import/export
 - [ ] Invoice generation
 - [ ] Print-friendly layouts
 - [ ] Advanced reporting
+- [ ] Custom service templates
+- [ ] Service duplication feature
 
 ## Scripts Reference
 
@@ -291,10 +380,13 @@ This project demonstrates proficiency in:
 
 - Modern React patterns and hooks
 - TypeScript type safety
-- State management (Zustand)
+- State management (Zustand with persistence)
 - Server/Client component architecture (Next.js App Router)
-- Form handling and validation
+- Form handling and validation (React Hook Form + Zod)
 - Unit testing with Vitest
 - Responsive design with Tailwind CSS
 - Component composition with Radix UI
 - Real-world business logic implementation
+- Data persistence with localStorage
+- CRUD operations for user-generated content
+- Accessibility best practices
