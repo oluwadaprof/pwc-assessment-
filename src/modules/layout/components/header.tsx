@@ -5,6 +5,7 @@ import { ViewToggle } from "./view-toggle";
 import { CartSheet } from "../../cart/components/cart-sheet";
 import { ThemeSwitcher } from "@/src/primitives/theme-switcher";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 
 
 interface HeaderProps {
@@ -32,20 +33,27 @@ export const Header = ({
     cartOpen,
     onCartOpenChange,
 }: HeaderProps) => {
+    const { theme } = useTheme()
     return (
         <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
             <div className="container mx-auto px-4 py-3">
                 <div className="flex items-center justify-between gap-4">
-
                     <div className="flex items-center gap-3 shrink-0">
-                        {/* <PwcLogo className="h-7 w-auto md:h-8" /> */}
-                        <Image
-                            alt='PwC logo'
-                            src='/images/pwc-logo-removebg-preview.png'
-                            width={50}
-                            height={15}
-                            priority
-                        />
+                        {theme === 'light' ?
+                            <Image
+                                alt='PwC logo'
+                                src='/images/pwc-logo-black.png'
+                                width={50}
+                                height={15}
+                                priority
+                            /> : <Image
+                                alt='PwC logo'
+                                src='/images/pwc-logo-white-.png'
+                                width={50}
+                                height={15}
+                                priority
+                            />}
+
                         <div className="hidden sm:block h-6 w-px bg-border" />
                         <div className="hidden sm:block">
                             <h1 className="text-sm md:text-base font-semibold text-foreground">VAT Calculator</h1>

@@ -26,7 +26,7 @@ const getVatLabel = (vatRate: number, category: string) => {
 export const ProductCard = ({ product, isSelected, onSelect }: ProductCardProps) => {
     return (
         <Card
-            className={`cursor-pointer transition-all duration-200 hover:bg-secondary/50 hover:shadow-lg ${isSelected ? "ring-2 ring-primary border-primary" : "border-border"
+            className={`cursor-pointer transition-all duration-200 hover:bg-secondary/50 hover:shadow-lg flex flex-col h-full ${isSelected ? "ring-2 ring-primary border-primary" : "border-border"
                 }`}
             onClick={onSelect}
         >
@@ -38,9 +38,9 @@ export const ProductCard = ({ product, isSelected, onSelect }: ProductCardProps)
                     </Badge>
                 </div>
             </CardHeader>
-            <CardContent>
-                <p className="mb-4 text-sm text-muted-foreground line-clamp-2">{product.description}</p>
-                <div className="flex items-center justify-between">
+            <CardContent className="flex flex-col flex-1">
+                <p className="mb-4 text-sm text-muted-foreground line-clamp-2 flex-1">{product.description}</p>
+                <div className="flex items-center justify-between mt-auto">
                     <span className="text-lg font-semibold text-foreground">
                         {formatCurrency(product.basePrice)}
                     </span>
