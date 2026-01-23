@@ -78,7 +78,7 @@ export const ProductCard = ({ product, isSelected, onSelect, categories }: Produ
                                         Delete Service
                                     </DropdownMenuItem>
                                 </AlertDialogTrigger>
-                                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                                <AlertDialogContent className="rounded-2xl" onClick={(e) => e.stopPropagation()}>
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                         <AlertDialogDescription>
@@ -86,8 +86,8 @@ export const ProductCard = ({ product, isSelected, onSelect, categories }: Produ
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                                        <AlertDialogCancel className='rounded-xl'>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90 rounded-xl">
                                             Delete
                                         </AlertDialogAction>
                                     </AlertDialogFooter>
