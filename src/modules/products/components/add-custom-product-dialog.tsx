@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Edit, Edit2, Plus, Save } from "lucide-react"
+import { Plus, Save, Pencil, Edit2 } from "lucide-react"
 import { Button } from "@/src/primitives/ui/button"
 import {
     Dialog,
@@ -10,6 +10,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
+
 } from "@/src/primitives/ui/dialog"
 import {
     Form,
@@ -29,10 +30,11 @@ import {
 } from "@/src/primitives/ui/select"
 import { Textarea } from "@/src/primitives/ui/textarea"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { Product } from "../../types/product"
 import { useCustomProductsStore } from "../../store/use-custom-product-store"
 import { customProductSchema, type CustomProductFormData } from "../../utils/custom-schema"
+import { DropdownMenuItem } from "@/src/primitives/ui/dropdown-menu"
 
 type AddCustomProductDialogProps = {
     categories: string[]
@@ -55,6 +57,16 @@ export const AddCustomProductDialog = ({ categories, editProduct, onSuccess }: A
             description: editProduct?.description || "",
         },
     })
+
+    const selectedCategory = form.watch("category")
+
+    useEffect(() => {
+        if (selectedCategory === "Zero-Rated" || selectedCategory === "Exempt") {
+            form.setValue("vatRate", "0", { shouldValidate: true })
+        }
+    }, [selectedCategory, form])
+
+    const isVatDisabled = selectedCategory === "Zero-Rated" || selectedCategory === "Exempt"
 
     const onSubmit = (data: CustomProductFormData) => {
         const productData = {
@@ -129,13 +141,13 @@ export const AddCustomProductDialog = ({ categories, editProduct, onSuccess }: A
                                     <FormLabel>Category</FormLabel>
                                     <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
-                                            <SelectTrigger className="rounded-xl">
+                                            <SelectTrigger className='rounded-xl'>
                                                 <SelectValue placeholder="Select a category" />
                                             </SelectTrigger>
                                         </FormControl>
-                                        <SelectContent>
+                                        <SelectContent className='rounded-xl' >
                                             {categories.map((category) => (
-                                                <SelectItem key={category} value={category}>
+                                                <SelectItem className="rounded-lg" key={category} value={category}>
                                                     {category}
                                                 </SelectItem>
                                             ))}
@@ -180,6 +192,8 @@ export const AddCustomProductDialog = ({ categories, editProduct, onSuccess }: A
                                                 step="0.1"
                                                 min="0"
                                                 max="100"
+                                                disabled={isVatDisabled}
+                                                className={isVatDisabled ? "bg-muted cursor-not-allowed" : ""}
                                                 {...field}
                                             />
                                         </FormControl>

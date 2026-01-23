@@ -10,6 +10,17 @@ export const customProductSchema = z.object({
     .min(1, "VAT rate is required")
     .refine((val) => !isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100, "VAT rate must be between 0 and 100"),
   description: z.string().min(10, "Description must be at least 10 characters").max(500, "Description is too long"),
-})
+}).refine(
+  (data) => {
+    if (data.category === "Zero-Rated" || data.category === "Exempt") {
+      return data.vatRate === "0" || data.vatRate === ""
+    }
+    return true
+  },
+  {
+    message: "VAT rate must be 0% for Zero-Rated and Exempt categories",
+    path: ["vatRate"],
+  }
+)
 
 export type CustomProductFormData = z.infer<typeof customProductSchema>
